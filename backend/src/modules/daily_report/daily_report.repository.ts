@@ -77,7 +77,6 @@ class DailyReportRepository {
         return existingReport;
     }
 
-    // all can see today's reports (except draft reports)
     async findTodayReports (
         reportDate: string,
         siteId: string,
@@ -115,7 +114,6 @@ class DailyReportRepository {
         return todayReports;
     }
 
-    // find today's own report
     async findTodayOwnReport (
         reportDate: string,
         memberId: string,
