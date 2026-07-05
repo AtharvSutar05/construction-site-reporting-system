@@ -6,6 +6,7 @@ import { createSiteSchema, updateSiteSchema } from "./site.validation.js";
 import { siteController } from "./site.controller.js";
 import { validateUUID } from "../../middleware/validateUUID.middleware.js";
 import { taskController } from "../task/task.controller.js";
+import { dailyReportController } from "../daily_report/daily_report.controller.js";
 
 export const siteRouter = Router();
 
@@ -71,3 +72,24 @@ siteRouter.get(
     ),
     taskController.getSiteTasks
 );
+
+siteRouter.get(
+    "/:siteId/daily-reports/today",
+    validateUUID("siteId"),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.ENGINEER
+    ),
+    dailyReportController.getTodayReports
+);
+
+
+siteRouter.get(
+    "/:siteId/daily-reports/me",
+    validateUUID("siteId"),
+    authorizeCompanyRole(
+        UserRole.ENGINEER
+    ),
+    dailyReportController.getTodayOwnReport
+)
