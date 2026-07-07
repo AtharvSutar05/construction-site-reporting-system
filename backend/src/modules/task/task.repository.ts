@@ -37,7 +37,7 @@ class TaskRepository {
                     eq(tasks.id, taskId),
                     eq(sites.companyId, companyId),
                     isNull(tasks.deletedAt)
-                )    
+                )
             );
 
         return task;
@@ -101,7 +101,7 @@ class TaskRepository {
                 id: tasks.id,
                 title: tasks.title
             });
-        
+
         return softDeletedTask;
     }
 
@@ -131,9 +131,37 @@ class TaskRepository {
                     isNull(tasks.deletedAt)
                 )
             );
-        
+
         return result;
     }
+
+    async findTaskByIdAndSite(
+        taskId: string,
+        siteId: string,
+        companyId: string
+    ) {
+        const [task] = await db
+            .select({
+                id: tasks.id,
+                siteId: tasks.siteId,
+            })
+            .from(tasks)
+            .innerJoin(
+                sites,
+                eq(tasks.siteId, sites.id)
+            )
+            .where(
+                and(
+                    eq(tasks.id, taskId),
+                    eq(tasks.siteId, siteId),
+                    eq(sites.companyId, companyId),
+                    isNull(tasks.deletedAt)
+                )
+            );
+
+        return task;
+    }
+
 }
 
 export const taskRepository = new TaskRepository();
