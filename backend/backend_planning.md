@@ -68,14 +68,15 @@ The system uses PostgreSQL, with relationships carefully modeled to support a mu
 | **Site** | Fully Integrated | CRUD for construction sites. |
 | **Site Assignment**| Fully Integrated | Assigning personnel to sites. |
 | **Task** | Fully Integrated | Task management on sites. |
-| **Daily Report** | In Progress | Currently has Service/Repository/Validation, but missing Controllers/Routes. |
+| **Task Progress** | Planned | Tracking and updating task progress. |
+| **Daily Report** | Fully Integrated | Daily report management (creating, viewing, listing). |
 | **Issues/Photos** | Planned | Database schemas exist, pending module implementation. |
 
 ## 6. Next Steps & Implementation Plan
 
-### Phase 1: Complete Daily Report Module
-*   Implement `daily_report.controller.ts` to handle HTTP requests for creating, viewing, and listing daily reports.
-*   Implement `daily_report.routes.ts` and register it in `src/app.ts` (`/api/v1/daily-reports`).
+### Phase 1: Implement Task Progress Module
+*   Create the `task_progress` module (routes, controller, service, validation) to allow users to update and track the progress of tasks over time.
+*   Register routes in `src/app.ts`.
 
 ### Phase 2: Implement Issues and Proof Photos
 *   Create the `issues` module (routes, controller, service, validation) to allow users to report and track site blockers.
