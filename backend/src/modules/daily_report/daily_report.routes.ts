@@ -57,3 +57,12 @@ dailyReportRouter.get(
     ),
     taskProgressController.getReportTaskProgress
 );
+
+dailyReportRouter.get(
+    "/:reportId/task-progress/me",
+    validateUUID("reportId"),
+    authorizeCompanyRole(
+        UserRole.ENGINEER
+    ),
+    taskProgressController.getExistingReportTaskProgress
+);

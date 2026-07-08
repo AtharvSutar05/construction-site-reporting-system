@@ -37,6 +37,22 @@ class TaskProgressRepository {
         return existingTaskProgress;
     }
 
+    async findExistingTaskProgressById(
+        taskProgressId: string
+    ) {
+        const [existingTaskProgress] = await db
+            .select({
+                id: taskProgress.id,
+                reportId: taskProgress.reportId
+            })
+            .from(taskProgress)
+            .where(
+                eq(taskProgress.id, taskProgressId)
+            );
+
+        return existingTaskProgress;
+    }
+
     async findReportTaskProgress(
         reportId: string
     ) {
@@ -62,6 +78,22 @@ class TaskProgressRepository {
             .orderBy(tasks.title);
 
         return progressList;
+    }
+
+    async updateTaskProgress(
+        taskProgressId: string,
+        data: UpdateTaskProgressInput
+    ) {
+        const [updatedTaskProgress] = await db
+            .update(taskProgress)
+            .set({
+                ...data,
+                updatedAt: new Date()
+            })
+            .where(eq(taskProgress.id, taskProgressId))
+            .returning();
+
+        return updatedTaskProgress;
     }
 }
 
