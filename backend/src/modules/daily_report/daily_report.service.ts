@@ -7,7 +7,7 @@ import type { CreateDailyReportInput, UpdateDailyReportInput } from "./daily_rep
 
 class DailyReportService {
 
-    private async ensureDailyReportExist (
+    private async ensureDailyReportExist(
         reportId: string,
         memberId: string,
         companyId: string
@@ -18,7 +18,7 @@ class DailyReportService {
             companyId
         );
 
-        if(!existingReport) {
+        if (!existingReport) {
             throw new NotFoundError("Report not found");
         }
 
@@ -30,13 +30,15 @@ class DailyReportService {
         companyId: string,
         data: CreateDailyReportInput
     ) {
-        const reportDate = new Date().toISOString().slice(0,10);
+        const now = new Date();
+        const reportDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
         const existingSite = await siteRepository.findSiteId(
             data.siteId,
             companyId
         );
 
-        if(!existingSite) {
+        if (!existingSite) {
             throw new NotFoundError("Site not found");
         }
 
@@ -46,7 +48,7 @@ class DailyReportService {
             companyId
         );
 
-        if(!existingSiteAssignment) {
+        if (!existingSiteAssignment) {
             throw new NotFoundError("Site assignment not found");
         }
 
@@ -57,7 +59,7 @@ class DailyReportService {
             companyId
         );
 
-        if(existingReport) {
+        if (existingReport) {
             throw new ConflictError("Report already created");
         }
 
@@ -70,46 +72,49 @@ class DailyReportService {
         return report;
     }
 
-    async getTodayReports (
+    async getTodayReports(
         siteId: string,
         companyId: string
     ) {
-        const reportDate = new Date().toISOString().slice(0,10);
-    
+        const now = new Date();
+        const reportDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
         const existingSite = await siteRepository.findSiteId(
             siteId,
             companyId,
         );
 
-        if(!existingSite) {
+        if (!existingSite) {
             throw new NotFoundError("Site not found");
         }
-        
+
         const dailyReport = await dailyReportRepository.findTodayReports(
             reportDate,
             siteId,
             companyId
         );
 
-        if(dailyReport.length === 0) {
+        if (dailyReport.length === 0) {
             throw new NotFoundError("Today's report not found");
         }
 
         return dailyReport;
     }
 
-    async getTodayOwnReport (
+    async getTodayOwnReport(
         memberId: string,
         siteId: string,
         companyId: string
     ) {
-        const reportDate = new Date().toISOString().slice(0,10);
+        const now = new Date();
+        const reportDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
         const existingSite = await siteRepository.findSiteId(
             siteId,
             companyId
         );
 
-        if(!existingSite) {
+        if (!existingSite) {
             throw new NotFoundError("Site not found");
         }
 
@@ -119,9 +124,9 @@ class DailyReportService {
             companyId
         );
 
-        if(!existingSiteAssignment) {
+        if (!existingSiteAssignment) {
             throw new NotFoundError("Site assignment not found");
-        }        
+        }
 
         const todayReport = await dailyReportRepository.findTodayOwnReport(
             reportDate,
@@ -129,15 +134,15 @@ class DailyReportService {
             siteId,
             companyId
         );
-        
-        if(!todayReport) {
+
+        if (!todayReport) {
             throw new NotFoundError("Today's report not found");
         }
 
         return todayReport;
     }
 
-    async updateDailyReport (
+    async updateDailyReport(
         reportId: string,
         memberId: string,
         companyId: string,
@@ -149,17 +154,17 @@ class DailyReportService {
             companyId
         );
 
-        if(existingReport.status !== ReportStatus.DRAFT) {
+        if (existingReport.status !== ReportStatus.DRAFT) {
             throw new ConflictError("Only draft reports can be updated.");
         }
-        
+
         return await dailyReportRepository.updateDailyReport(
             reportId,
             data
         );
     }
 
-    async submitDailyReport (
+    async submitDailyReport(
         reportId: string,
         memberId: string,
         companyId: string
@@ -170,7 +175,7 @@ class DailyReportService {
             companyId
         );
 
-        if(existingReport.status !== ReportStatus.DRAFT) {
+        if (existingReport.status !== ReportStatus.DRAFT) {
             throw new ConflictError("Only draft reports can be submitted.")
         }
 
