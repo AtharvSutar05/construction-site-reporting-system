@@ -8,7 +8,7 @@ import type { CreateDailyReportInput, UpdateDailyReportInput } from "./daily_rep
 import { and, eq, ne } from "drizzle-orm";
 
 class DailyReportRepository {
-    async createDailyReport (
+    async createDailyReport(
         memberId: string,
         reportDate: string,
         data: CreateDailyReportInput
@@ -26,14 +26,15 @@ class DailyReportRepository {
         return dailyReport;
     }
 
-    async findExistingReportId (
+    async findExistingReportId(
         reportId: string,
         memberId: string,
-        compnayId: string
+        companyId: string
     ) {
         const [existingReport] = await db
             .select({
                 id: dailyReports.id,
+                siteId: dailyReports.siteId,
                 status: dailyReports.status
             })
             .from(dailyReports)
@@ -45,21 +46,45 @@ class DailyReportRepository {
                 and(
                     eq(dailyReports.id, reportId),
                     eq(dailyReports.createdBy, memberId),
-                    eq(sites.companyId, compnayId)
+                    eq(sites.companyId, companyId)
                 )
             );
 
         return existingReport;
     }
 
-    async findTodayReportId (
+    async findExistingReportIdOnly(
+        reportId: string,
+        companyId: string
+    ) {
+        const [report] = await db
+            .select({
+                id: dailyReports.id,
+                siteId: dailyReports.siteId,
+                status: dailyReports.status
+            })
+            .from(dailyReports)
+            .innerJoin(
+                sites,
+                eq(dailyReports.siteId, sites.id)
+            )
+            .where(
+                and(
+                    eq(dailyReports.id, reportId),
+                    eq(sites.companyId, companyId)
+                )
+            );
+        return report;
+    }
+
+    async findTodayReportId(
         reportDate: string,
         siteId: string,
         memberId: string,
         companyId: string
     ) {
         const [existingReport] = await db
-            .select({id: dailyReports.id})
+            .select({ id: dailyReports.id })
             .from(dailyReports)
             .innerJoin(
                 sites,
@@ -73,11 +98,11 @@ class DailyReportRepository {
                     eq(sites.companyId, companyId)
                 )
             );
-            
+
         return existingReport;
     }
 
-    async findTodayReports (
+    async findTodayReports(
         reportDate: string,
         siteId: string,
         companyId: string
@@ -110,11 +135,11 @@ class DailyReportRepository {
                     eq(sites.companyId, companyId)
                 )
             );
-            
+
         return todayReports;
     }
 
-    async findTodayOwnReport (
+    async findTodayOwnReport(
         reportDate: string,
         memberId: string,
         siteId: string,
@@ -149,7 +174,7 @@ class DailyReportRepository {
         return todayReport;
     }
 
-    async updateDailyReport (
+    async updateDailyReport(
         reportId: string,
         data: UpdateDailyReportInput
     ) {
@@ -164,7 +189,7 @@ class DailyReportRepository {
         return updatedReport;
     }
 
-    async submitDailyReport (
+    async submitDailyReport(
         reportId: string
     ) {
         const [submittedReport] = await db
