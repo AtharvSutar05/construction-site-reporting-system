@@ -3,7 +3,7 @@ import { ConflictError, NotFoundError } from "../../shared/errors/index.js";
 import { dailyReportRepository } from "../daily_report/daily_report.repository.js";
 import { taskRepository } from "../task/task.repository.js";
 import { taskProgressRepository } from "./task_progress.repository.js";
-import type { CreateTaskProgressInput } from "./task_progress.validation.js";
+import type { CreateTaskProgressInput, UpdateTaskProgressInput } from "./task_progress.validation.js";
 
 class TaskProgressService {
     async createTaskProgress(
@@ -12,27 +12,27 @@ class TaskProgressService {
         companyId: string,
         data: CreateTaskProgressInput
     ) {
-        const report = await dailyReportRepository.findExistingReportId(
+        const existingReport = await dailyReportRepository.findExistingReportId(
             reportId,
             memberId,
             companyId
         );
 
-        if (!report) {
+        if (!existingReport) {
             throw new NotFoundError("Report not found or access denied");
         }
 
-        if (report.status !== ReportStatus.DRAFT) {
+        if (existingReport.status !== ReportStatus.DRAFT) {
             throw new ConflictError("Task progress can only be added to DRAFT reports");
         }
 
-        const task = await taskRepository.findTaskByIdAndSite(
+        const existingTask = await taskRepository.findTaskByIdAndSite(
             data.taskId,
-            report.siteId,
+            existingReport.siteId,
             companyId
         );
 
-        if (!task) {
+        if (!existingTask) {
             throw new NotFoundError("Task not found");
         }
 
@@ -50,6 +50,26 @@ class TaskProgressService {
             data
         );
         return progress;
+    }
+
+    async getReportTaskProgress(
+        reportId: string,
+        companyId: string
+    ) {
+        const existingReport = await dailyReportRepository.findExistingReportIdOnly(
+            reportId,
+            companyId
+        );
+
+        if (!existingReport) {
+            throw new NotFoundError("Report not found or access denied");
+        }
+
+        const taskProgressList = await taskProgressRepository.findReportTaskProgress(
+            reportId
+        );
+
+        return taskProgressList;
     }
 }
 

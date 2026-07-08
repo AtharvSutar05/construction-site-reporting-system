@@ -1,6 +1,7 @@
 import { db } from "../../config/db.js";
 import { taskProgress } from "../../database/schema/task_progress.schema.js";
-import type { CreateTaskProgressInput } from "./task_progress.validation.js";
+import { tasks } from "../../database/schema/tasks.schema.js";
+import type { CreateTaskProgressInput, UpdateTaskProgressInput } from "./task_progress.validation.js";
 import { and, eq } from "drizzle-orm";
 
 class TaskProgressRepository {
@@ -34,6 +35,33 @@ class TaskProgressRepository {
             );
 
         return existingTaskProgress;
+    }
+
+    async findReportTaskProgress(
+        reportId: string
+    ) {
+        const progressList = await db
+            .select({
+                id: taskProgress.id,
+                taskId: taskProgress.taskId,
+                suggestedStatus: taskProgress.suggestedStatus,
+                remarks: taskProgress.remarks,
+                createdAt: taskProgress.createdAt,
+                updatedAt: taskProgress.updatedAt,
+                taskTitle: tasks.title,
+                taskPriority: tasks.priority
+            })
+            .from(taskProgress)
+            .innerJoin(
+                tasks,
+                eq(taskProgress.taskId, tasks.id)
+            )
+            .where(
+                eq(taskProgress.reportId, reportId)
+            )
+            .orderBy(tasks.title);
+
+        return progressList;
     }
 }
 

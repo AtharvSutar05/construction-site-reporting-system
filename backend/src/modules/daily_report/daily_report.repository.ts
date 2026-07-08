@@ -29,7 +29,7 @@ class DailyReportRepository {
     async findExistingReportId(
         reportId: string,
         memberId: string,
-        compnayId: string
+        companyId: string
     ) {
         const [existingReport] = await db
             .select({
@@ -46,11 +46,35 @@ class DailyReportRepository {
                 and(
                     eq(dailyReports.id, reportId),
                     eq(dailyReports.createdBy, memberId),
-                    eq(sites.companyId, compnayId)
+                    eq(sites.companyId, companyId)
                 )
             );
 
         return existingReport;
+    }
+
+    async findExistingReportIdOnly(
+        reportId: string,
+        companyId: string
+    ) {
+        const [report] = await db
+            .select({
+                id: dailyReports.id,
+                siteId: dailyReports.siteId,
+                status: dailyReports.status
+            })
+            .from(dailyReports)
+            .innerJoin(
+                sites,
+                eq(dailyReports.siteId, sites.id)
+            )
+            .where(
+                and(
+                    eq(dailyReports.id, reportId),
+                    eq(sites.companyId, companyId)
+                )
+            );
+        return report;
     }
 
     async findTodayReportId(

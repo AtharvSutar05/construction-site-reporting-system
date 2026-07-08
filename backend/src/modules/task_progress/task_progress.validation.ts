@@ -15,4 +15,17 @@ export const createTaskProgressSchema = z.object({
         .optional(),
 });
 
-export type CreateTaskProgressInput = z.infer<typeof createTaskProgressSchema>; 
+export const updateTaskProgressSchema = z.object({
+    suggestedStatus: z
+        .enum(SuggestedTaskStatus)
+        .optional(),
+
+    remarks: z
+        .string()
+        .min(1, "Remarks are required")
+        .max(1000, "Remarks must be less than 1000 characters")
+        .optional(),
+})
+
+export type CreateTaskProgressInput = z.infer<typeof createTaskProgressSchema>;
+export type UpdateTaskProgressInput = z.infer<typeof updateTaskProgressSchema>; 

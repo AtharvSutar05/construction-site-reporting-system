@@ -47,3 +47,13 @@ dailyReportRouter.post(
     validateSchema(createTaskProgressSchema),
     taskProgressController.createTaskProgress
 );
+
+dailyReportRouter.get(
+    "/:reportId/task-progress",
+    validateUUID("reportId"),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER
+    ),
+    taskProgressController.getReportTaskProgress
+);
