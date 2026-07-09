@@ -7,18 +7,21 @@ export const proofPhotos = pgTable(
         id: uuid()
             .defaultRandom()
             .primaryKey(),
-        
+
         taskProgressId: uuid("task_progress_id")
             .notNull()
             .references(() => taskProgress.id, {
                 onDelete: "cascade"
             }),
-        
+
         imageUrl: text()
             .notNull(),
 
+        publicId: text()
+            .notNull(),
+
         caption: text(),
-        
+
         createdAt: timestamp("created_at", { withTimezone: true })
             .defaultNow()
             .notNull(),

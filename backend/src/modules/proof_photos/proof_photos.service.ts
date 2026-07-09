@@ -47,10 +47,11 @@ class ProofPhotosService {
         }
 
         const uploadResult = await this.uploadToCloudinary(fileBuffer);
-        
+
         return await proofPhotosRepository.createProofPhoto(
             taskProgressId,
             uploadResult.secure_url,
+            uploadResult.public_id,
             caption
         );
     }
@@ -128,9 +129,14 @@ class ProofPhotosService {
         if (report.status !== ReportStatus.DRAFT) {
             throw new ConflictError("Photos can only be deleted from DRAFT reports");
         }
+        const result = await cloudinary.uploader.destroy(photo.publicId);
 
-        // Ideally, we could also delete from Cloudinary here to save space, but it's not strictly required in the rules yet.
-        // E.g. cloudinary.uploader.destroy(publicId)
+        if (
+            result.result !== "ok" &&
+            result.result !== "not found"
+        ) {
+            throw new Error("Failed to delete photo from Cloudinary");
+        }
 
         return await proofPhotosRepository.deleteProofPhoto(photoId);
     }

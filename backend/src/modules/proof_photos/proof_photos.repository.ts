@@ -6,12 +6,14 @@ class ProofPhotosRepository {
     async createProofPhoto(
         taskProgressId: string,
         imageUrl: string,
+        publicId: string,
         caption?: string
     ) {
         const [photo] = await db.insert(proofPhotos)
             .values({
                 taskProgressId,
                 imageUrl,
+                publicId,
                 caption
             })
             .returning();
@@ -27,7 +29,12 @@ class ProofPhotosRepository {
     }
 
     async findProofPhotoById(photoId: string) {
-        const [photo] = await db.select()
+        const [photo] = await db
+            .select({
+                id: proofPhotos.id,
+                taskProgressId: proofPhotos.taskProgressId,
+                publicId: proofPhotos.publicId
+            })
             .from(proofPhotos)
             .where(eq(proofPhotos.id, photoId));
 
