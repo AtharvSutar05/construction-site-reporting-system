@@ -13,6 +13,7 @@ import { taskRouter } from "./modules/task/task.routes.js";
 import { dailyReportRouter } from "./modules/daily_report/daily_report.routes.js";
 import { taskProgressRouter } from "./modules/task_progress/task_progress.routes.js";
 import { proofPhotoRouter } from "./modules/proof_photos/proof_photos.routes.js";
+import { issuesRouter } from "./modules/issues/issues.routes.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/v1/tasks", authMiddleware, taskRouter);
 app.use("/api/v1/daily-reports", authMiddleware, dailyReportRouter);
 app.use("/api/v1/task-progress", authMiddleware, taskProgressRouter);
 app.use("/api/v1/proof-photos", authMiddleware, proofPhotoRouter);
+app.use("/api/v1/issues", authMiddleware, issuesRouter);
 
 app.get("/health", (_, res) => {
   res.status(200).json({
