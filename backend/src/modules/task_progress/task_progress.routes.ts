@@ -8,6 +8,8 @@ import { updateTaskProgressSchema } from "./task_progress.validation.js";
 import { upload } from "../../middleware/upload.middleware.js";
 import { proofPhotosController } from "../proof_photos/proof_photos.controller.js";
 import { uploadProofPhotoSchema } from "../proof_photos/proof_photos.validation.js";
+import { issuesController } from "../issues/issues.controller.js";
+import { createIssueSchema } from "../issues/issues.validation.js";
 
 export const taskProgressRouter = Router();
 
@@ -42,4 +44,26 @@ taskProgressRouter.get(
     validateUUID("taskProgressId"),
     authorizeCompanyRole(UserRole.ADMIN, UserRole.MANAGER),
     proofPhotosController.getReportProofPhotos
+);
+
+taskProgressRouter.post(
+    "/:taskProgressId/issues",
+    validateUUID("taskProgressId"),
+    authorizeCompanyRole(UserRole.ENGINEER),
+    validateSchema(createIssueSchema),
+    issuesController.createIssue
+);
+
+taskProgressRouter.get(
+    "/:taskProgressId/issues/me",
+    validateUUID("taskProgressId"),
+    authorizeCompanyRole(UserRole.ENGINEER),
+    issuesController.getEngineerIssue
+);
+
+taskProgressRouter.get(
+    "/:taskProgressId/issues",
+    validateUUID("taskProgressId"),
+    authorizeCompanyRole(UserRole.ADMIN, UserRole.MANAGER),
+    issuesController.getReportIssue
 );
