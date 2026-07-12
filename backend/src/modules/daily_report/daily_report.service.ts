@@ -1,7 +1,9 @@
 import { ReportStatus } from "../../shared/enums/report_status.enum.js";
+import { SuggestedTaskStatus } from "../../shared/enums/suggested_task_status.enum.js";
 import { ConflictError, NotFoundError } from "../../shared/errors/index.js";
 import { siteRepository } from "../site/site.repository.js";
 import { siteAssignmentRepository } from "../site_assignment/site_assignment.repository.js";
+import { taskProgressRepository } from "../task_progress/task_progress.repository.js";
 import { dailyReportRepository } from "./daily_report.repository.js";
 import type { CreateDailyReportInput, UpdateDailyReportInput } from "./daily_report.validation.js";
 
@@ -23,6 +25,42 @@ class DailyReportService {
         }
 
         return existingReport;
+    }
+
+
+    private validateTaskProgressForSubmission(
+        taskProgressList: any[]
+    ): string[] {
+        const errors: string[] = [];
+
+        for (const taskProgress of taskProgressList) {
+            if (
+                taskProgress.suggestedStatus === SuggestedTaskStatus.COMPLETED &&
+                taskProgress.photoCount === 0
+            ) {
+                errors.push(
+                    `${taskProgress.taskTitle}: At least one proof photo is required.`
+                );
+            }
+            if (
+                taskProgress.suggestedStatus === SuggestedTaskStatus.IN_PROGRESS &&
+                taskProgress.photoCount === 0
+            ) {
+                errors.push(
+                    `${taskProgress.taskTitle}: At least one proof photo is required.`
+                );
+            }
+            if (
+                taskProgress.suggestedStatus === SuggestedTaskStatus.PENDING &&
+                !taskProgress.hasIssue
+            ) {
+                errors.push(
+                    `${taskProgress.taskTitle}: An issue is required.`
+                );
+            }
+        }
+
+        return errors;
     }
 
     async createDailyReport(
@@ -175,8 +213,30 @@ class DailyReportService {
             companyId
         );
 
+        if (existingReport.status === ReportStatus.SUBMITTED) {
+            throw new ConflictError("Report already submitted.");
+        }
+
         if (existingReport.status !== ReportStatus.DRAFT) {
             throw new ConflictError("Only draft reports can be submitted.")
+        }
+
+
+        const taskProgressList = await taskProgressRepository.findReportTaskProgressForValidation(
+            reportId
+        );
+
+        if (taskProgressList.length === 0) {
+            throw new ConflictError("Add at least one task progress before submitting.");
+        }
+
+        const validationErrors = this.validateTaskProgressForSubmission(taskProgressList);
+
+        if (validationErrors.length > 0) {
+            throw new ConflictError(
+                "Report cannot be submitted:\n\n" +
+                validationErrors.map(e => `• ${e}`).join("\n")
+            );
         }
 
         return await dailyReportRepository.submitDailyReport(reportId);

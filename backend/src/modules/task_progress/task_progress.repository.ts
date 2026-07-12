@@ -1,8 +1,7 @@
 import { db } from "../../config/db.js";
-import { taskProgress } from "../../database/schema/task_progress.schema.js";
-import { tasks } from "../../database/schema/tasks.schema.js";
+import { dailyReports, taskProgress, tasks, proofPhotos, issues } from "../../database/schema/index.js";
 import type { CreateTaskProgressInput, UpdateTaskProgressInput } from "./task_progress.validation.js";
-import { and, eq } from "drizzle-orm";
+import { and, eq, count, sql } from "drizzle-orm";
 
 class TaskProgressRepository {
     async createTaskProgress(
@@ -94,6 +93,50 @@ class TaskProgressRepository {
             .returning();
 
         return updatedTaskProgress;
+    }
+
+    async findReportTaskProgressForValidation(
+        reportId: string,
+    ) {
+        const taskProgressList = await db
+            .select({
+                taskProgressId: taskProgress.id,
+                taskTitle: tasks.title,
+                suggestedStatus: taskProgress.suggestedStatus,
+
+                photoCount: count(proofPhotos.id),
+
+                hasIssue: sql<boolean>`
+                COUNT(${issues.id}) > 0
+            `,
+            })
+            .from(dailyReports)
+            .innerJoin(
+                taskProgress,
+                eq(taskProgress.reportId, dailyReports.id)
+            )
+            .innerJoin(
+                tasks,
+                eq(taskProgress.taskId, tasks.id)
+            )
+            .leftJoin(
+                proofPhotos,
+                eq(proofPhotos.taskProgressId, taskProgress.id)
+            )
+            .leftJoin(
+                issues,
+                eq(issues.taskProgressId, taskProgress.id)
+            )
+            .where(
+                eq(dailyReports.id, reportId)
+            )
+            .groupBy(
+                taskProgress.id,
+                tasks.title,
+                taskProgress.suggestedStatus
+            );
+
+        return taskProgressList;
     }
 }
 
