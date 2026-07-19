@@ -32,6 +32,7 @@ export const reportApprovals = pgTable(
         remarks: text(),
 
         reviewedAt: timestamp("reviewed_at", { withTimezone: true })
+            .defaultNow()
             .notNull(),
 
         createdAt: timestamp("created_at", { withTimezone: true })

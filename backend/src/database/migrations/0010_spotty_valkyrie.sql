@@ -1,0 +1,1 @@
+ALTER TABLE "report_approvals" ALTER COLUMN "reviewed_at" SET DEFAULT now();

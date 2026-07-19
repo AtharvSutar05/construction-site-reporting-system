@@ -14,8 +14,7 @@ class ReportApprovalRepository {
             .values({
                 reportId: reportId,
                 reviewedBy: memberId,
-                ...data,
-                reviewedAt: new Date()
+                ...data
             })
             .returning();
 
