@@ -138,6 +138,22 @@ class TaskProgressRepository {
 
         return taskProgressList;
     }
+
+    async findReportTaskProgressForApproval(
+        reportId: string,
+    ) {
+        const progressList = await db
+            .select({
+                taskId: taskProgress.taskId,
+                suggestedStatus: taskProgress.suggestedStatus,
+            })
+            .from(taskProgress)
+            .where(
+                eq(taskProgress.reportId, reportId)
+            );
+
+        return progressList;
+    }
 }
 
 export const taskProgressRepository = new TaskProgressRepository();

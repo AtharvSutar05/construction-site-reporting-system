@@ -8,6 +8,7 @@ export const taskStatusPgEnum = pgEnum("task_status", [
     TaskStatus.OPEN,
     TaskStatus.IN_PROGRESS,
     TaskStatus.COMPLETED,
+    TaskStatus.PENDING,
     TaskStatus.CANCELLED
 ]);
 
