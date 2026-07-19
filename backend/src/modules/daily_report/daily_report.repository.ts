@@ -204,6 +204,22 @@ class DailyReportRepository {
 
         return submittedReport;
     }
+
+    async updateReportStatus(
+        reportId: string,
+        status: ReportStatus
+    ) {
+        const [updatedReport] = await db
+            .update(dailyReports)
+            .set({
+                status,
+                updatedAt: new Date()
+            })
+            .where(eq(dailyReports.id, reportId))
+            .returning();
+
+        return updatedReport;
+    }
 }
 
 export const dailyReportRepository = new DailyReportRepository();

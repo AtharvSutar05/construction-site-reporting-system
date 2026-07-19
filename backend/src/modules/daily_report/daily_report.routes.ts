@@ -7,6 +7,8 @@ import { dailyReportController } from "./daily_report.controller.js";
 import { validateUUID } from "../../middleware/validateUUID.middleware.js";
 import { createTaskProgressSchema } from "../task_progress/task_progress.validation.js";
 import { taskProgressController } from "../task_progress/task_progress.controller.js";
+import { createReportApprovalSchema } from "../report_approval/report_approval.validation.js";
+import { reportApprovalController } from "../report_approval/report_approval.controller.js";
 
 export const dailyReportRouter = Router();
 
@@ -65,4 +67,15 @@ dailyReportRouter.get(
         UserRole.ENGINEER
     ),
     taskProgressController.getExistingReportTaskProgress
+);
+
+dailyReportRouter.post(
+    "/:reportId/review",
+    validateUUID("reportId"),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER
+    ),
+    validateSchema(createReportApprovalSchema),
+    reportApprovalController.reviewReport
 );

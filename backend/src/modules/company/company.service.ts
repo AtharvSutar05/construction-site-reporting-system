@@ -14,7 +14,7 @@ class CompanyService {
             .select()
             .from(companies)
             .where(eq(companies.id, companyId));
-        
+
         if (!company) {
             throw new NotFoundError("Company not found");
         }
@@ -43,10 +43,10 @@ class CompanyService {
                 })
                 .returning();
 
-            if(!newCompany) {
+            if (!newCompany) {
                 throw new Error("Failed to create company");
             }
-            
+
             await tx
                 .insert(companyMembers)
                 .values({
@@ -79,7 +79,7 @@ class CompanyService {
                 )
             )
             .returning();
-        if(!updatedCompany) {
+        if (!updatedCompany) {
             throw new NotFoundError("Company not found");
         }
         return updatedCompany;
@@ -99,7 +99,7 @@ class CompanyService {
             )
             .returning();
 
-        if(!deletedCompany) {
+        if (!deletedCompany) {
             throw new NotFoundError("Company not found");
         }
     }
