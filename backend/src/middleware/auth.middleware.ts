@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction} from "express";
+import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../shared/utils/jwt.util.js";
 
 export const authMiddleware = (
@@ -7,39 +7,39 @@ export const authMiddleware = (
     next: NextFunction
 ) => {
     try {
+        const authCookie = req.cookies?.accessToken;
         const authHeader = req.headers.authorization;
-        if (!authHeader) {
+        const accessToken = authCookie ?? authHeader;
+
+        if (!accessToken) {
             return res.status(401).json({
                 success: false,
                 message: "Access token required",
             });
         }
-        if (!authHeader.startsWith("Bearer ")) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid token format",
-            });
+
+        let token = accessToken;
+
+        if (accessToken.startsWith("Bearer ")) {
+            token = accessToken.split(" ")[1];
+            if (!token) {
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid token format",
+                });
+            }
         }
 
-        const token = authHeader.split(" ")[1];
-
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: "Access token required",
-            });
-        }
-        
         const decoded = verifyToken(token);
-        
+
         req.user = decoded;
-        
+
         return next();
-    } catch(error) {
+    } catch (error) {
         return res.status(401)
             .json({
                 success: false,
                 message: "Invalid or expired token",
             });
-    } 
+    }
 }
