@@ -2,13 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/services/secure_storage_service.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
+import 'package:frontend/core/network/api_exception.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final SecureStorageService _secureStorageService = SecureStorageService();
-  final AuthRepository _authRepository = AuthRepository();
-  AuthBloc() : super(AuthInitial()) {
+  final SecureStorageService _secureStorageService;
+  final AuthRepository _authRepository;
+
+  AuthBloc({
+    SecureStorageService? secureStorageService,
+    AuthRepository? authRepository,
+  }) : _secureStorageService = secureStorageService ?? SecureStorageService(),
+       _authRepository = authRepository ?? AuthRepository(),
+       super(AuthInitial()) {
     on<LoginRequested>(onLoginRequested);
     on<RegisterRequested>(onRegisterRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
@@ -62,8 +69,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       } else {
         emit(AuthUnauthenticated());
       }
-    } catch (_) {
-      emit(AuthUnauthenticated());
+    } catch (e) {
+      if (e is ApiException && e.statusCode == 401) {
+        emit(AuthUnauthenticated());
+      } else {
+        emit(AuthFailure(message: e.toString()));
+      }
     }
   }
 
@@ -75,7 +86,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authRepository.logOut();
       emit(AuthUnauthenticated());
     } catch (e) {
-      print(e.toString());
       emit(AuthFailure(message: e.toString()));
     }
   }

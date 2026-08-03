@@ -81,9 +81,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 );
             }
-            if (state is AuthAuthenticated) {
-              context.go(RouteNames.dashboard);
-            }
           },
           builder: (context, state) {
             final isLoading = state is AuthLoading;
@@ -107,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             style: AppTypography.bodySecondary,
                           ),
                           const SizedBox(height: AppSpacing.xl),
-                    
+
                           const Text("Name", style: AppTypography.inputLabel),
                           const SizedBox(height: AppSpacing.s),
                           TextFormField(
@@ -117,9 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             textCapitalization: TextCapitalization.words,
                             textInputAction: TextInputAction.next,
                             style: AppTypography.bodyPrimary,
-                            autofillHints: const [
-                              AutofillHints.name
-                            ],
+                            autofillHints: const [AutofillHints.name],
                             decoration: const InputDecoration(
                               hintText: "Enter your full name",
                               prefixIcon: Icon(Icons.person_rounded),
@@ -137,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                           const SizedBox(height: AppSpacing.l),
-                    
+
                           const Text("Email", style: AppTypography.inputLabel),
                           const SizedBox(height: AppSpacing.s),
                           TextFormField(
@@ -146,9 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             focusNode: _emailFocusNode,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            autofillHints: const [
-                              AutofillHints.email
-                            ],
+                            autofillHints: const [AutofillHints.email],
                             style: AppTypography.bodyPrimary,
                             decoration: const InputDecoration(
                               hintText: "example@gmail.com",
@@ -173,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                           ),
                           const SizedBox(height: AppSpacing.l),
-                    
+
                           const Text(
                             "Password",
                             style: AppTypography.inputLabel,
@@ -199,11 +192,14 @@ class _RegisterPageState extends State<RegisterPage> {
                                       ? Icons.visibility_rounded
                                       : Icons.visibility_off_rounded,
                                 ),
-                                onPressed: isLoading ? null : () {
-                                  setState(
-                                    () => _obscurePassword = !_obscurePassword,
-                                  );
-                                },
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        setState(
+                                          () => _obscurePassword =
+                                              !_obscurePassword,
+                                        );
+                                      },
                               ),
                             ),
                             validator: (value) {
@@ -219,9 +215,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               if (!isLoading) _onRegisterPressed();
                             },
                           ),
-                    
+
                           const SizedBox(height: AppSpacing.xl),
-                    
+
                           SizedBox(
                             width: double.infinity,
                             height: 50,
@@ -253,18 +249,20 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ),
                             ),
                           ),
-                    
+
                           const SizedBox(height: AppSpacing.xl),
-                    
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text("Already have an account?"),
                               const SizedBox(width: AppSpacing.s),
                               TextButton(
-                                onPressed: isLoading ? null : () {
-                                  context.go(RouteNames.login);
-                                },
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        context.go(RouteNames.login);
+                                      },
                                 child: const Text("Log In"),
                               ),
                             ],

@@ -71,14 +71,9 @@ class _LoginPageState extends State<LoginPage> {
                     content: Text(state.message),
                     backgroundColor: AppColors.error,
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppRadius.sm,
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: AppRadius.sm),
                   ),
                 );
-            }
-            if (state is AuthAuthenticated) {
-              context.go(RouteNames.dashboard);
             }
           },
           builder: (context, state) {
@@ -133,8 +128,9 @@ class _LoginPageState extends State<LoginPage> {
                               return null;
                             },
                             onFieldSubmitted: (_) {
-                              FocusScope.of(context)
-                                  .requestFocus(_passwordFocusNode);
+                              FocusScope.of(
+                                context,
+                              ).requestFocus(_passwordFocusNode);
                             },
                           ),
                           const SizedBox(height: AppSpacing.l),
@@ -144,9 +140,11 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Text("Password", style: AppTypography.inputLabel),
                               TextButton(
-                                onPressed: isLoading ? null : () {
-                                  // TODO: navigate to forgot password flow
-                                },
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        // TODO: navigate to forgot password flow
+                                      },
                                 child: Text(
                                   "Forgot password?",
                                   style: AppTypography.bodySecondary.copyWith(
@@ -169,18 +167,23 @@ class _LoginPageState extends State<LoginPage> {
                             style: AppTypography.bodyPrimary,
                             decoration: InputDecoration(
                               hintText: "Enter your password",
-                              prefixIcon: const Icon(Icons.lock_outline_rounded),
+                              prefixIcon: const Icon(
+                                Icons.lock_outline_rounded,
+                              ),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_rounded
                                       : Icons.visibility_off_rounded,
                                 ),
-                                onPressed: isLoading ? null : () {
-                                  setState(
-                                        () => _obscurePassword = !_obscurePassword,
-                                  );
-                                },
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        setState(
+                                          () => _obscurePassword =
+                                              !_obscurePassword,
+                                        );
+                                      },
                               ),
                             ),
                             validator: (value) {
@@ -206,28 +209,28 @@ class _LoginPageState extends State<LoginPage> {
                               onPressed: isLoading ? null : _onLoginPressed,
                               child: isLoading
                                   ? Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppSpacing.m),
-                                  const Text(
-                                    "Signing In...",
-                                    style: AppTypography.buttonLabel,
-                                  ),
-                                ],
-                              )
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: AppSpacing.m),
+                                        const Text(
+                                          "Signing In...",
+                                          style: AppTypography.buttonLabel,
+                                        ),
+                                      ],
+                                    )
                                   : Text(
-                                "Sign In",
-                                style: AppTypography.buttonLabel,
-                              ),
+                                      "Sign In",
+                                      style: AppTypography.buttonLabel,
+                                    ),
                             ),
                           ),
 
@@ -239,9 +242,11 @@ class _LoginPageState extends State<LoginPage> {
                               const Text("Don't have an account?"),
                               const SizedBox(width: AppSpacing.s),
                               TextButton(
-                                onPressed: isLoading ? null : () {
-                                  context.go(RouteNames.register);
-                                },
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        context.go(RouteNames.register);
+                                      },
                                 child: const Text("Create one"),
                               ),
                             ],

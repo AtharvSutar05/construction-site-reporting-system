@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/router/route_names.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
-import 'package:go_router/go_router.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -21,16 +19,13 @@ class DashboardPage extends StatelessWidget {
                 children: [
                   Text("Welcome ${state.user.name} to SiteFlow"),
                   IconButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(LogOutRequested());
-                      context.go(RouteNames.login);
-                    },
+                    onPressed: () =>
+                        context.read<AuthBloc>().add(LogOutRequested()),
                     icon: Icon(Icons.login, color: Colors.red),
                   ),
                 ],
               );
             }
-            print(state.toString());
             return SizedBox.shrink();
           },
         ),

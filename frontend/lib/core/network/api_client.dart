@@ -9,11 +9,12 @@ import 'api_exception.dart';
 
 class ApiClient {
   final http.Client _client;
-
-  ApiClient({http.Client? client}) : _client = client ?? createHttpClient();
-
   final String _baseUrl = EnvConfig.apiBaseUrl;
-  final SecureStorageService _secureStorageService = SecureStorageService();
+  final SecureStorageService _secureStorageService;
+
+  ApiClient({http.Client? client, SecureStorageService? secureStorageService})
+    : _client = client ?? createHttpClient(),
+      _secureStorageService = secureStorageService ?? SecureStorageService();
 
   Future<Map<String, String>> _buildHeaders() async {
     String? token;
@@ -52,7 +53,7 @@ class ApiClient {
       return _handleResponse(response);
     } on ApiException {
       rethrow;
-    } catch(e) {
+    } catch (e) {
       throw ApiException(
         statusCode: 0,
         message: "Network error. Please check your internet connection.",
@@ -106,7 +107,8 @@ class ApiClient {
       default:
         throw ApiException(
           statusCode: response.statusCode,
-          message: serverMessage ?? "Something went wrong (${response.statusCode}).",
+          message:
+              serverMessage ?? "Something went wrong (${response.statusCode}).",
         );
     }
   }
