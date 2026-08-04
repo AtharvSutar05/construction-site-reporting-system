@@ -70,18 +70,13 @@ The system uses PostgreSQL, with relationships carefully modeled to support a mu
 | **Task** | Fully Integrated | Task management on sites. |
 | **Task Progress** | Fully Integrated | Tracking and updating task progress. |
 | **Daily Report** | Fully Integrated | Daily report management (creating, viewing, listing). |
-| **Issues/Photos** | Planned | Database schemas exist, pending module implementation. |
+| **Issues** | Fully Integrated | Tracking and managing site blockers and problems. |
+| **Proof Photos** | Fully Integrated | Managing image uploads for reports and issues. |
+| **Report Approval** | Fully Integrated | Workflow for managers to review and approve daily reports. |
 
 ## 6. Next Steps & Implementation Plan
 
-### Phase 1: Implement Issues and Proof Photos
-*   Create the `issues` module (routes, controller, service, validation) to allow users to report and track site blockers.
-*   Create the `proof_photos` module, potentially integrating with cloud storage (e.g., AWS S3, Cloudinary) to handle image uploads for Daily Reports and Issues.
-
-### Phase 2: Implement Report Approvals
-*   Create the `report_approval` module to build the workflow for managers/admins to review and approve/reject Daily Reports.
-
-### Phase 3: Refinement & Optimization
+### Phase 1: Refinement & Optimization
 *   Add pagination and filtering to list endpoints (Sites, Tasks, Reports).
-*   Implement strict Role-Based Access Control (RBAC) middleware to ensure users only access resources within their Company and Site Assignment scope.
+*   Enhance Role-Based Access Control (RBAC) middleware to cover all edge cases for Site Assignment scope.
 *   Add comprehensive unit and integration tests.

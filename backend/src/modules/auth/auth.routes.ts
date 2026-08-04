@@ -24,3 +24,9 @@ authRouter.post(
   authController.login
 );
 
+authRouter.get(
+  "/logout",
+  authMiddleware,
+  authController.logOut
+);
+

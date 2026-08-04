@@ -3,13 +3,13 @@ import type { AuthPayload } from "../../modules/auth/auth.types.js";
 import { env } from "../../config/env.js";
 
 export const generateToken = (payload: AuthPayload) => {
-    return jwt.sign(
-        payload,
-        env.JWT_SECRET,
-        {
-            expiresIn: "7d"
-        }
-    );
+  return jwt.sign(
+    payload,
+    env.JWT_SECRET,
+    {
+      expiresIn: "7d"
+    }
+  );
 }
 
 export const verifyToken = (
