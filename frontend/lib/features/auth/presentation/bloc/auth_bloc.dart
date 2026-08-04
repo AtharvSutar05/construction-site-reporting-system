@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/services/secure_storage_service.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
@@ -52,17 +53,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
     try {
-      if (!kIsWeb) {
-        final token = await _secureStorageService.readAccessToken();
-        if (token == null || token.isEmpty) {
-          emit(AuthUnauthenticated());
-          return;
-        }
-      }
-
-      final user = await _authRepository.me();
+      final user = await _authRepository.restoreSession();
 
       if (user != null) {
         emit(AuthAuthenticated(user: user));

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:frontend/core/services/secure_storage_service.dart';
 import 'package:frontend/features/auth/data/models/login_request.dart';
@@ -31,15 +33,24 @@ class AuthRepository {
     return registerResponse.data.user;
   }
 
-  Future<UserModel?> me() async {
-    final user = await _authApiService.me();
-    return user;
-  }
-
   Future<void> logOut() async {
-    await _authApiService.logOut();
     if (!kIsWeb) {
       await _secureStorageService.deleteAccessToken();
+      return;
     }
+    await _authApiService.logOut();
+  }
+
+  Future<UserModel?> restoreSession() async {
+    if (!kIsWeb) {
+      final token = await _secureStorageService.readAccessToken();
+      if (token == null) return null;
+    }
+    return await _authApiService.me();
+  }
+
+  Future<bool> hasToken() async {
+    final token = await _secureStorageService.readAccessToken();
+    return token != null;
   }
 }

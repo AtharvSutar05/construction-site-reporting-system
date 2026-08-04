@@ -17,7 +17,7 @@ class DashboardPage extends StatelessWidget {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Welcome ${state.user.name} to SiteFlow"),
+                  Text("Welcome ${state.user.name}!"),
                   IconButton(
                     onPressed: () =>
                         context.read<AuthBloc>().add(LogOutRequested()),

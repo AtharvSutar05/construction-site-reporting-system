@@ -23,7 +23,7 @@ class AppRouter {
             state.matchedLocation == RouteNames.dashboard;
 
         if (authState is AuthInitial) {
-          if (isGoingToSplash) {
+          if (!isGoingToSplash) {
             return RouteNames.splash;
           }
           return null;
