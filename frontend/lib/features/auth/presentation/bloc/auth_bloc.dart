@@ -1,26 +1,29 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/services/secure_storage_service.dart';
+import 'package:frontend/core/auth/auth_session.dart';
 import 'package:frontend/features/auth/data/repositories/auth_repository.dart';
 import 'package:frontend/core/network/api_exception.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final SecureStorageService _secureStorageService;
   final AuthRepository _authRepository;
+  late final StreamSubscription<void> _unauthorizedSubscription;
 
-  AuthBloc({
-    SecureStorageService? secureStorageService,
-    AuthRepository? authRepository,
-  }) : _secureStorageService = secureStorageService ?? SecureStorageService(),
-       _authRepository = authRepository ?? AuthRepository(),
-       super(AuthInitial()) {
+  AuthBloc({AuthRepository? authRepository})
+    : _authRepository = authRepository ?? AuthRepository(),
+      super(AuthInitial()) {
     on<LoginRequested>(onLoginRequested);
     on<RegisterRequested>(onRegisterRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<LogOutRequested>(_onLogOutRequested);
+    on<SessionExpired>(_onSessionExpired);
+
+    _unauthorizedSubscription = AuthSession.instance.unauthorizedStream.listen((
+      _,
+    ) {
+      add(SessionExpired());
+    });
   }
 
   Future<void> onLoginRequested(
@@ -80,5 +83,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       emit(AuthFailure(message: e.toString()));
     }
+  }
+
+  Future<void> _onSessionExpired(
+    SessionExpired event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _authRepository.clearLocalSession();
+    emit(AuthUnauthenticated());
+  }
+
+  @override
+  Future<void> close() {
+    _unauthorizedSubscription.cancel();
+    return super.close();
   }
 }

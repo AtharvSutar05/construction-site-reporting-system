@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Join SitFlow", style: AppTypography.heading1),
+                          Text("Join SiteFlow", style: AppTypography.heading1),
                           const SizedBox(height: AppSpacing.s),
                           Text(
                             "Create an account to start managing your construction projects.",

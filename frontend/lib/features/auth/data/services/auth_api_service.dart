@@ -14,11 +14,14 @@ class AuthApiService {
   }
 
   Future<RegisterResponse> register(RegisterRequest registerRequest) async {
-    final json = await _apiClient.post('auth/register', registerRequest.toJson());
+    final json = await _apiClient.post(
+      'auth/register',
+      registerRequest.toJson(),
+    );
     return RegisterResponse.fromJson(json);
   }
 
-  Future<UserModel?> me() async {
+  Future<UserModel> me() async {
     final json = await _apiClient.get('auth/me');
     return UserModel.fromJson(json['data']);
   }

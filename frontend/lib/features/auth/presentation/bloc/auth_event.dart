@@ -30,3 +30,5 @@ class RegisterRequested extends AuthEvent {
 class AuthCheckRequested extends AuthEvent {}
 
 class LogOutRequested extends AuthEvent {}
+
+class SessionExpired extends AuthEvent {}

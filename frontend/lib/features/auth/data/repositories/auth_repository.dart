@@ -44,13 +44,16 @@ class AuthRepository {
   Future<UserModel?> restoreSession() async {
     if (!kIsWeb) {
       final token = await _secureStorageService.readAccessToken();
-      if (token == null) return null;
+      if (token == null || token.isEmpty) {
+        return null;
+      }
     }
     return await _authApiService.me();
   }
 
-  Future<bool> hasToken() async {
-    final token = await _secureStorageService.readAccessToken();
-    return token != null;
+  Future<void> clearLocalSession() async {
+    if (!kIsWeb) {
+      await _secureStorageService.deleteAccessToken();
+    }
   }
 }

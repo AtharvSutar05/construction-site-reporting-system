@@ -21,7 +21,7 @@ class DashboardPage extends StatelessWidget {
                   IconButton(
                     onPressed: () =>
                         context.read<AuthBloc>().add(LogOutRequested()),
-                    icon: Icon(Icons.login, color: Colors.red),
+                    icon: Icon(Icons.logout, color: Colors.red),
                   ),
                 ],
               );
