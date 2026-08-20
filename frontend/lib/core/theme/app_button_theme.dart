@@ -13,6 +13,21 @@ abstract class AppButtonTheme {
   // ---------------------------------------------------------------------------
   // 1. PRIMARY BUTTON (ElevatedButton standard)
   // ---------------------------------------------------------------------------
+  static FilledButtonThemeData get filledButtonTheme => FilledButtonThemeData(
+    style: FilledButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.white,
+      disabledBackgroundColor: AppColors.border,
+      disabledForegroundColor: AppColors.textDisabled,
+      elevation: 0,
+      padding: _padding,
+      shape: RoundedRectangleBorder(borderRadius: _borderRadius),
+      textStyle: AppTypography.buttonLabel,
+    )
+  );
+  // ---------------------------------------------------------------------------
+  // 1. PRIMARY BUTTON (ElevatedButton standard)
+  // ---------------------------------------------------------------------------
   static ElevatedButtonThemeData get elevatedButtonTheme => ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
@@ -61,7 +76,8 @@ abstract class AppButtonTheme {
   // ---------------------------------------------------------------------------
   static OutlinedButtonThemeData get outlinedButtonTheme => OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      foregroundColor: AppColors.textPrimary,
+      backgroundColor: AppColors.white,
+      foregroundColor: AppColors.primary,
       disabledForegroundColor: AppColors.textDisabled,
       padding: _padding,
       shape: RoundedRectangleBorder(borderRadius: _borderRadius),

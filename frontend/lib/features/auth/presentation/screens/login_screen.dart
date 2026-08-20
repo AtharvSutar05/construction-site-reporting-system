@@ -12,14 +12,14 @@ import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -245,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: isLoading
                                     ? null
                                     : () {
-                                        context.go(RouteNames.register);
+                                        context.go(RoutePaths.register);
                                       },
                                 child: const Text("Create one"),
                               ),

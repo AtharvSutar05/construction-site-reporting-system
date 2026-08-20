@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SplashPage extends StatelessWidget {
-  const SplashPage({super.key});
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,7 @@ class SplashPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'logos/site_flow_logo.png',
+              'assets/logos/site_flow_logo.png',
               width: 180,
               height: 180,
               fit: BoxFit.contain,

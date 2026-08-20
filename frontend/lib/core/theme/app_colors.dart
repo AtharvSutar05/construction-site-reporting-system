@@ -14,6 +14,7 @@ abstract class AppColors {
   // Background & Surface
   static const Color background = Color(0xFFF8FAFC); // Light Concrete Tint
   static const Color surface = Color(0xFFFFFFFF);    // Pure White
+  static const Color loading = Color(0xFF64748B);    // Loading
 
   // Borders & Dividers
   static const Color border = Color(0xFFE2E8F0);     // Slate Border
