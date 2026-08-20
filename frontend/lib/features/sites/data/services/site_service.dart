@@ -21,8 +21,8 @@ class SiteService {
     return SiteDetailModel.fromJson(json['data']);
   }
 
-  Future<bool> createSite(CreateSiteModel site) async {
+  Future<SiteDetailModel> createSite(CreateSiteModel site) async {
     final json = await _apiClient.post('sites', site.toJson());
-    return json['success'];
+    return SiteDetailModel.fromJson(json['data']);
   }
 }

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/enums/site_status.dart';
+import 'package:frontend/core/router/route_names.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/core/theme/app_radius.dart';
 import 'package:frontend/core/theme/app_spacing.dart';
 import 'package:frontend/core/theme/app_typography.dart';
 import 'package:frontend/features/sites/data/models/create_site_model.dart';
+import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_bloc.dart';
+import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_event.dart';
+import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_state.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateSiteScreen extends StatefulWidget {
   const CreateSiteScreen({super.key});
@@ -22,7 +28,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
-  final _countryController = TextEditingController();
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   SiteStatus _status = SiteStatus.active;
@@ -33,7 +38,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
   late final FocusNode _addressFocusNode;
   late final FocusNode _cityFocusNode;
   late final FocusNode _stateFocusNode;
-  late final FocusNode _countryFocusNode;
 
   @override
   void initState() {
@@ -44,7 +48,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
     _addressFocusNode = FocusNode();
     _cityFocusNode = FocusNode();
     _stateFocusNode = FocusNode();
-    _countryFocusNode = FocusNode();
   }
 
   @override
@@ -55,7 +58,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
     _addressController.dispose();
     _cityController.dispose();
     _stateController.dispose();
-    _countryController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
 
@@ -65,7 +67,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
     _addressFocusNode.dispose();
     _cityFocusNode.dispose();
     _stateFocusNode.dispose();
-    _countryFocusNode.dispose();
 
     super.dispose();
   }
@@ -82,7 +83,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
       address: _addressController.text.trim(),
       city: _cityController.text.trim(),
       state: _stateController.text.trim(),
-      country: _countryController.text.trim(),
+      country: "United States",
       latitude: _latitudeController.text.trim().isEmpty
           ? null
           : double.tryParse(_latitudeController.text.trim()),
@@ -91,36 +92,92 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
           : double.tryParse(_longitudeController.text.trim()),
       status: _status,
     );
+    context.read<CreateSiteBloc>().add(CreateSiteRequested(site: site));
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(AppSpacing.m),
-      child: Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text("Basic Information", style: AppTypography.heading2,),
-              const SizedBox(height: AppSpacing.s),
-              _customCard(
-                child: _basicInformationForm(),
-              ),
-              const SizedBox(height: AppSpacing.m),
-              Text("Location", style: AppTypography.heading2,),
-              const SizedBox(height: AppSpacing.s),
-              _customCard(child: _locationForm()),
-              const SizedBox(height: AppSpacing.m),
-              SizedBox(height: 64, child: FilledButton(onPressed: () => _submit(), child: Text("Create Site")))
-            ],
+    return BlocListener<CreateSiteBloc, CreateSiteState>(
+      listener: (context, state) {
+        if (state is CreateSiteSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Site created successfully'),
+            ),
+          );
+
+          context.goNamed(RouteNames.siteDetail,
+            pathParameters: {
+              'siteId': state.siteId,
+            },
+          );
+        }
+
+        if (state is CreateSiteFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+            ),
+          );
+        }
+      },
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(AppSpacing.m),
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text("Basic Information", style: AppTypography.heading2),
+                const SizedBox(height: AppSpacing.s),
+                _customCard(child: _basicInformationForm()),
+                const SizedBox(height: AppSpacing.m),
+                Text("Location", style: AppTypography.heading2),
+                const SizedBox(height: AppSpacing.s),
+                _customCard(child: _locationForm()),
+                const SizedBox(height: AppSpacing.m),
+                SizedBox(
+                  height: 64,
+                  child: BlocBuilder<CreateSiteBloc, CreateSiteState>(
+                    builder: (context, state) {
+                      final isLoading = state is CreateSiteLoading ? true : false;
+                      return FilledButton(
+                        onPressed: isLoading ? null : () => _submit(),
+                        child: isLoading
+                          ? Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: AppColors.white,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.m),
+                            const Text(
+                              "Creating Site...",
+                            ),
+                          ],
+                        )
+                        : Text(
+                          "Create Site",
+                        ),
+                      );
+                    }
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-  
+
   Widget _basicInformationForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,9 +189,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
           keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           style: AppTypography.bodyPrimary,
-          decoration: const InputDecoration(
-            hintText: "Riverside Tower",
-          ),
+          decoration: const InputDecoration(hintText: "Riverside Tower"),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return "Site name is required";
@@ -165,9 +220,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
             return null;
           },
           onFieldSubmitted: (_) {
-            FocusScope.of(
-              context,
-            ).requestFocus(_descriptionFocusNode);
+            FocusScope.of(context).requestFocus(_descriptionFocusNode);
           },
         ),
         const SizedBox(height: AppSpacing.m),
@@ -192,9 +245,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
             return null;
           },
           onFieldSubmitted: (_) {
-            FocusScope.of(
-              context,
-            ).requestFocus(_statusFocusNode);
+            FocusScope.of(context).requestFocus(_statusFocusNode);
           },
         ),
         const SizedBox(height: AppSpacing.m),
@@ -206,11 +257,8 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
           focusNode: _statusFocusNode,
           items: SiteStatus.values
               .map(
-                (s) => DropdownMenuItem(
-              value: s,
-              child: Text(s.displayName),
-            ),
-          )
+                (s) => DropdownMenuItem(value: s, child: Text(s.displayName)),
+              )
               .toList(),
           onChanged: (value) {
             if (value != null) setState(() => _status = value);
@@ -233,9 +281,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
           maxLines: 2,
           textInputAction: TextInputAction.next,
           style: AppTypography.bodyPrimary,
-          decoration: const InputDecoration(
-            hintText: "Street address",
-          ),
+          decoration: const InputDecoration(hintText: "Street address"),
           validator: (v) {
             final value = v?.trim() ?? '';
             if (value.length < 5) {
@@ -265,9 +311,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
                     focusNode: _cityFocusNode,
                     textInputAction: TextInputAction.next,
                     style: AppTypography.bodyPrimary,
-                    decoration: const InputDecoration(
-                      hintText: "eg. Mumbai",
-                    ),
+                    decoration: const InputDecoration(hintText: "eg. Mumbai"),
                     validator: (v) {
                       final value = v?.trim() ?? '';
                       if (value.isEmpty) {
@@ -305,13 +349,10 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
                       }
                       return null;
                     },
-                    onFieldSubmitted: (_) {
-                      FocusScope.of(context).requestFocus(_countryFocusNode);
-                    },
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.m),
@@ -321,7 +362,6 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
           initialValue: "India",
           enabled: false,
           keyboardType: TextInputType.text,
-          focusNode: _countryFocusNode,
           textInputAction: TextInputAction.next,
           style: AppTypography.bodyPrimary,
         ),
@@ -342,15 +382,9 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
                     ),
                     textInputAction: TextInputAction.next,
                     style: AppTypography.bodyPrimary,
-                    decoration: const InputDecoration(
-                      hintText: "-90 to 90",
-                    ),
-                    validator: (v) => _coordinateValidator(
-                      v,
-                      -90,
-                      90,
-                      'Latitude',
-                    ),
+                    decoration: const InputDecoration(hintText: "-90 to 90"),
+                    validator: (v) =>
+                        _coordinateValidator(v, -90, 90, 'Latitude'),
                   ),
                 ],
               ),
@@ -370,20 +404,14 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
                     ),
                     textInputAction: TextInputAction.next,
                     style: AppTypography.bodyPrimary,
-                    decoration: const InputDecoration(
-                      hintText: "-180 to 180",
-                    ),
-                    validator: (v) => _coordinateValidator(
-                      v,
-                      -180,
-                      180,
-                      'Longitude',
-                    ),
+                    decoration: const InputDecoration(hintText: "-180 to 180"),
+                    validator: (v) =>
+                        _coordinateValidator(v, -180, 180, 'Longitude'),
                     onFieldSubmitted: (_) => _submit(),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ],
@@ -406,11 +434,11 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
   }
 
   String? _coordinateValidator(
-      String? v,
-      double min,
-      double max,
-      String label,
-      ) {
+    String? v,
+    double min,
+    double max,
+    String label,
+  ) {
     final value = v?.trim() ?? '';
     if (value.isEmpty) return null; // optional field
     final parsed = double.tryParse(value);

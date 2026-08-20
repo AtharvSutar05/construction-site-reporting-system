@@ -8,9 +8,12 @@ import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
 
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
 import 'package:frontend/features/auth/presentation/screens/splash_screen.dart';
+import 'package:frontend/features/sites/data/services/site_service.dart';
+import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_bloc.dart';
 import 'package:frontend/features/sites/presentation/bloc/sites/sites_bloc.dart';
 import 'package:frontend/features/sites/presentation/bloc/sites/sites_event.dart';
 import 'package:go_router/go_router.dart';
+import 'features/sites/data/repositories/site_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +26,7 @@ Future<void> main() async {
           lazy: false,
         ),
         BlocProvider(create: (_) => SitesBloc()..add(LoadSites()), lazy: true),
+        BlocProvider(create: (_) => CreateSiteBloc(repository: SiteRepository()))
       ],
       child: const MyApp(),
     ),

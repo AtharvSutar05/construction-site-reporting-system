@@ -38,12 +38,14 @@ class SiteCard extends StatelessWidget {
                 ),
                 Text(
                   site.name,
+                  maxLines: 2,
                   style: AppTypography.heading2.copyWith(
                     color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.s,),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(Icons.location_on_outlined, size: 16),
                     const SizedBox(width: AppSpacing.s),

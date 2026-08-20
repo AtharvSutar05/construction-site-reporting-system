@@ -14,7 +14,7 @@ class SiteRepository {
     return await _siteService.getSiteDetail(siteId);
   }
 
-  Future<bool> createSite(CreateSiteModel site) async {
+  Future<SiteDetailModel> createSite(CreateSiteModel site) async {
     return await _siteService.createSite(site);
   }
 }
