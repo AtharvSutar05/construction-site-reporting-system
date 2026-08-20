@@ -56,6 +56,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthCheckRequested event,
     Emitter<AuthState> emit,
   ) async {
+    emit(AuthChecking());
     try {
       final user = await _authRepository.restoreSession();
 

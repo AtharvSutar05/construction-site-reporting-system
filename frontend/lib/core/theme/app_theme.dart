@@ -23,6 +23,7 @@ class AppTheme {
       ),
 
       // Button Themes
+      filledButtonTheme: AppButtonTheme.filledButtonTheme,
       elevatedButtonTheme: AppButtonTheme.elevatedButtonTheme,
       outlinedButtonTheme: AppButtonTheme.outlinedButtonTheme,
       textButtonTheme: AppButtonTheme.textButtonTheme,

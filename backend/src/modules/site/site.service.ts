@@ -1,5 +1,5 @@
 import type { CreateSiteInput, UpdateSiteInput } from "./site.validation.js";
-import { sites } from "../../database/schema/index.js";
+import { sites, users } from "../../database/schema/index.js";
 import { db } from "../../config/db.js";
 import { and, eq } from "drizzle-orm";
 import { ConflictError } from "../../shared/errors/conflict.error.js";
@@ -34,7 +34,16 @@ class SiteService {
         companyId: string
     ) {
         return await db
-            .select()
+            .select({
+                id: sites.id,
+                name: sites.name,
+                code: sites.code,
+                address: sites.address,
+                city: sites.city,
+                state: sites.state,
+                status: sites.status,
+                updatedAt: sites.updatedAt
+            })
             .from(sites)
             .where(
                 eq(sites.companyId, companyId)
@@ -46,8 +55,28 @@ class SiteService {
         siteId: string
     ) {
         const [companySite] = await db
-            .select()
+            .select({
+                id: sites.id,
+                companyId: sites.companyId,
+                name: sites.name,
+                code: sites.code,
+                description: sites.description,
+                address: sites.address,
+                city: sites.city,
+                state: sites.state,
+                country: sites.country,
+                latitude: sites.latitude,
+                longitude: sites.longitude,
+                status: sites.status,
+                createdBy: users.name, 
+                createdAt: sites.createdAt,
+                updatedAt: sites.updatedAt,
+            })
             .from(sites)
+            .innerJoin(
+                users,
+                eq(sites.createdBy, users.id)
+            )
             .where(
                 and(
                     eq(sites.companyId, companyId),
