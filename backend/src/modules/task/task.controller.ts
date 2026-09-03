@@ -9,9 +9,11 @@ class TaskController {
     ) => {
         try {
             const { memberId, companyId } = req.membership!;
-
+            const siteId = req.params.siteId as string;
+            
             const data = await taskService.createTask(
                 memberId,
+                siteId,
                 companyId,
                 req.body
             );

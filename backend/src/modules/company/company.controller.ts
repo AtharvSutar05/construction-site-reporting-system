@@ -15,7 +15,15 @@ class CompanyController {
 
             return res.status(200).json({
                 success: true,
-                data,
+                data : {
+                    company: data,
+                    membership: {
+                        id: req.membership!.memberId,
+                        userId: req.user!.userId,
+                        role: req.membership!.role,
+                        joinedAt: req.membership!.joinedAt
+                    }
+                },
             });
         } catch (error) {
             next(error);

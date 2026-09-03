@@ -1,88 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/core/enums/site_status.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/core/theme/app_radius.dart';
 import 'package:frontend/core/theme/app_spacing.dart';
 import 'package:frontend/core/theme/app_typography.dart';
-import 'package:frontend/features/sites/data/models/site_detail_model.dart';
+import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detail_bloc.dart';
+import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detail_state.dart';
 import 'package:frontend/features/sites/presentation/widgets/site_status_widget.dart';
 import 'package:intl/intl.dart';
 
 class SiteInfoCard extends StatelessWidget {
-  final SiteDetailModel site;
-
-  const SiteInfoCard({super.key, required this.site});
-
-  bool get _hasCoordinates => site.latitude != null && site.longitude != null;
+  const SiteInfoCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppRadius.md,
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      padding: EdgeInsets.all(AppSpacing.m),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          SizedBox(height: AppSpacing.s),
-          if (site.description != null &&
-              site.description!.trim().isNotEmpty) ...[
-            SizedBox(height: AppSpacing.m),
-            Text(
-              site.description!,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.bodyPrimary,
+    return BlocBuilder<SiteDetailBloc, SiteDetailState>(
+      builder: (context, state) {
+        if (state is SiteDetailLoading) {
+          return Container(
+            height: 250,
+            decoration: BoxDecoration(
+              color: AppColors.loading.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(AppRadius.mdValue),
             ),
-          ],
-          SizedBox(height: AppSpacing.m),
-          _buildInfoRow(icon: Icons.location_city_outlined, text: site.address),
-          SizedBox(height: AppSpacing.xs),
-          _buildInfoRow(
-            icon: Icons.location_on_outlined,
-            text: "${site.city}, ${site.state}, ${site.country}",
-          ),
-          if (_hasCoordinates) ...[
-            SizedBox(height: AppSpacing.xs),
-            _buildInfoRow(
-              icon: Icons.my_location_outlined,
-              text:
-                  "${site.latitude!.toStringAsFixed(5)}, ${site.longitude!.toStringAsFixed(5)}",
+          );
+        }
+        if (state is SiteDetailLoaded) {
+          final site = state.site;
+          final hasCoordinates =
+              site.latitude != null && site.longitude != null;
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: AppRadius.md,
+              border: Border.all(color: AppColors.border, width: 1),
             ),
-          ],
-          SizedBox(height: AppSpacing.m),
-          Divider(color: AppColors.border, thickness: 1),
-          SizedBox(height: AppSpacing.s),
-          _buildMetaFooter(),
-        ],
-      ),
+            padding: EdgeInsets.all(AppSpacing.m),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(
+                  code: site.code,
+                  name: site.name,
+                  status: site.status,
+                ),
+                SizedBox(height: AppSpacing.s),
+                if (site.description != null &&
+                    site.description!.trim().isNotEmpty) ...[
+                  SizedBox(height: AppSpacing.m),
+                  Text(
+                    site.description!,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodyPrimary,
+                  ),
+                ],
+                SizedBox(height: AppSpacing.m),
+                _buildInfoRow(
+                  icon: Icons.location_city_outlined,
+                  text: site.address,
+                ),
+                SizedBox(height: AppSpacing.xs),
+                _buildInfoRow(
+                  icon: Icons.location_on_outlined,
+                  text: "${site.city}, ${site.state}, ${site.country}",
+                ),
+                if (hasCoordinates) ...[
+                  SizedBox(height: AppSpacing.xs),
+                  _buildInfoRow(
+                    icon: Icons.my_location_outlined,
+                    text:
+                        "${site.latitude!.toStringAsFixed(5)}, ${site.longitude!.toStringAsFixed(5)}",
+                  ),
+                ],
+                SizedBox(height: AppSpacing.m),
+                Divider(color: AppColors.border, thickness: 1),
+                SizedBox(height: AppSpacing.s),
+                _buildMetaFooter(createdBy: site.createdBy, createdAt: site.createdAt, updatedAt: site.createdAt),
+              ],
+            ),
+          );
+        }
+        return SizedBox.shrink();
+      },
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(site.code, style: AppTypography.heading3),
-              Text(
-                site.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.heading2,
-              ),
-            ],
+  Widget _buildHeader({
+    required String code,
+    required String name,
+    required SiteStatus status,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(code, style: AppTypography.heading3),
+                Text(
+                  name,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.heading2,
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(width: AppSpacing.s),
-        SiteStatusWidget(status: site.status),
-      ],
+          Positioned(right: 0, top: 0, child: SiteStatusWidget(status: status)),
+        ],
+      ),
     );
   }
 
@@ -97,7 +126,11 @@ class SiteInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetaFooter() {
+  Widget _buildMetaFooter({
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) {
     final dateFormat = DateFormat('MMM d, yyyy');
     return Table(
       defaultColumnWidth: IntrinsicColumnWidth(),
@@ -115,9 +148,9 @@ class SiteInfoCard extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(width: AppSpacing.xs,),
+            const SizedBox(width: AppSpacing.xs),
             Text(
-              site.createdBy,
+              createdBy,
               style: AppTypography.badgeLabel.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -133,9 +166,9 @@ class SiteInfoCard extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(width: AppSpacing.xs,),
+            const SizedBox(width: AppSpacing.xs),
             Text(
-              dateFormat.format(site.createdAt),
+              dateFormat.format(createdAt),
               style: AppTypography.badgeLabel.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -151,38 +184,14 @@ class SiteInfoCard extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(width: AppSpacing.xs,),
+            const SizedBox(width: AppSpacing.xs),
             Text(
-              dateFormat.format(site.updatedAt),
+              dateFormat.format(updatedAt),
               style: AppTypography.badgeLabel.copyWith(
                 color: AppColors.textSecondary,
               ),
             ),
           ],
-        ),
-      ],
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Managed by ${site.createdBy}",
-          style: AppTypography.badgeLabel.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Text(
-          "Created ${dateFormat.format(site.createdAt)}",
-          style: AppTypography.badgeLabel.copyWith(
-            color: AppColors.textSecondary,
-          ),
-        ),
-        SizedBox(height: AppSpacing.xxs),
-        Text(
-          "Last updated ${dateFormat.format(site.updatedAt)}",
-          style: AppTypography.badgeLabel.copyWith(
-            color: AppColors.textSecondary,
-          ),
         ),
       ],
     );

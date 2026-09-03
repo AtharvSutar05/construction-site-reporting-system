@@ -4,19 +4,21 @@ import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detai
 import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detail_state.dart';
 
 class SiteDetailBloc extends Bloc<SiteDetailEvent, SiteDetailState> {
-  final SiteRepository _siteRepository = SiteRepository();
-  SiteDetailBloc() : super(SiteDetailLoading()) {
+  final SiteRepository _siteRepository;
+  SiteDetailBloc({required SiteRepository siteRepository})
+    : _siteRepository = siteRepository,
+      super(SiteDetailLoading()) {
     on<LoadSiteDetail>(onLoadSiteDetail);
   }
 
   Future<void> onLoadSiteDetail(
-      LoadSiteDetail event,
-      Emitter<SiteDetailState> emit,
-      ) async {
+    LoadSiteDetail event,
+    Emitter<SiteDetailState> emit,
+  ) async {
     try {
       final site = await _siteRepository.getSiteDetail(event.siteId);
       emit(SiteDetailLoaded(site: site));
-    } catch(e) {
+    } catch (e) {
       emit(SiteDetailError(message: e.toString()));
     }
   }

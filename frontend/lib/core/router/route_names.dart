@@ -16,6 +16,7 @@ class RoutePaths {
   static const String siteDetail = ':siteId'; // → /sites/:siteId
   static const String siteMembers = 'members'; // → /sites/:siteId/members
   static const String siteTasks = 'tasks'; // → /sites/:siteId/tasks
+  static const String siteReports = 'reports'; // → /sites/:siteId/reports
   static const String createSite = 'create'; // /sites/create
   static const String taskDetail = ':taskId'; // → /tasks/:taskId
   static const String reportDetail = ':reportId'; // → /reports/:reportId
@@ -42,6 +43,7 @@ class RouteNames {
   static const String siteDetail = 'siteDetail';
   static const String siteMembers = 'siteMembers';
   static const String siteTasks = 'siteTasks';
+  static const String siteReports = 'siteReports';
   static const String createSite = 'createSite';
   static const String taskDetail = 'taskDetail';
   static const String reportDetail = 'reportDetail';

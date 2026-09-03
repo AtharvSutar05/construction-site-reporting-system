@@ -1,6 +1,8 @@
 import 'package:frontend/features/sites/data/models/create_site_model.dart';
+import 'package:frontend/features/sites/data/models/quick_task_model.dart';
 import 'package:frontend/features/sites/data/models/site_detail_model.dart';
 import 'package:frontend/features/sites/data/models/site_model.dart';
+import 'package:frontend/features/sites/data/models/site_quick_stats_model.dart';
 import 'package:frontend/features/sites/data/services/site_service.dart';
 
 class SiteRepository {
@@ -16,5 +18,13 @@ class SiteRepository {
 
   Future<SiteDetailModel> createSite(CreateSiteModel site) async {
     return await _siteService.createSite(site);
+  }
+
+  Future<SiteQuickStatsModel> getSiteQuickStats(String siteId) async {
+    return await _siteService.getSiteQuickStats(siteId);
+  }
+
+  Future<String?> createQuickTask(String siteId, QuickTaskModel task) async {
+    return await _siteService.createQuickTask(siteId, task);
   }
 }

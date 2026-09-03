@@ -1,16 +1,19 @@
 import { db } from "../../config/db.js";
 import { tasks, sites } from "../../database/schema/index.js";
+import { TaskStatus } from "../../shared/enums/task_status.enum.js";
 import type { CreateTaskInput, UpdateTaskInput } from "./task.validation.js";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, count } from "drizzle-orm";
 
 class TaskRepository {
     async createTask(
+        siteId: string,
         data: CreateTaskInput,
         createdBy: string
     ) {
         const [newTask] = await db
             .insert(tasks)
             .values({
+                siteId: siteId,
                 ...data,
                 createdBy,
             })
@@ -162,6 +165,20 @@ class TaskRepository {
         return task;
     }
 
+    async countTasksBySiteId(
+        siteId: string
+    ) : Promise<number> {
+        const result = await db
+            .select({
+                count: count(tasks.id)
+            })
+            .from(tasks)
+            .where(
+                eq(tasks.siteId, siteId),
+            );
+
+        return result[0]?.count ?? 0;
+    }
 }
 
 export const taskRepository = new TaskRepository();

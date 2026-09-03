@@ -31,10 +31,17 @@ class ApiClient {
     };
   }
 
-  Future<Map<String, dynamic>> get(String route) async {
+  Future<Map<String, dynamic>> get(String route, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     try {
+      final uri = Uri.parse("$_baseUrl/$route").replace(
+        queryParameters: queryParameters?.map(
+              (key, value) => MapEntry(key, value.toString()),
+        ),
+      );
       final http.Response response = await _client.get(
-        Uri.parse("$_baseUrl/$route"),
+        uri,
         headers: await _buildHeaders(),
       );
 

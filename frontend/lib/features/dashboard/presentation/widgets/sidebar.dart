@@ -95,8 +95,8 @@ class Sidebar extends StatelessWidget {
                     onTap: () => context.go(RoutePaths.tasks),
                   ),
                   SidebarItem(
-                    leadingIcon: Icons.event_note_outlined,
-                    activeIcon: Icons.event_note,
+                    leadingIcon: Icons.description_outlined,
+                    activeIcon: Icons.description,
                     title: "Reports",
                     isCollapsed: isCollapsed,
                     isSelected: location.startsWith(RoutePaths.reports),

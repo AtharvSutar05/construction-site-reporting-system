@@ -5,30 +5,26 @@ import 'package:frontend/core/router/app_router.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_event.dart';
-
 import 'package:frontend/features/auth/presentation/bloc/auth_state.dart';
 import 'package:frontend/features/auth/presentation/screens/splash_screen.dart';
-import 'package:frontend/features/sites/data/services/site_service.dart';
-import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_bloc.dart';
-import 'package:frontend/features/sites/presentation/bloc/sites/sites_bloc.dart';
-import 'package:frontend/features/sites/presentation/bloc/sites/sites_event.dart';
+import 'package:frontend/features/sites/data/repositories/site_repository.dart';
 import 'package:go_router/go_router.dart';
-import 'features/sites/data/repositories/site_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => AuthBloc()..add(AuthCheckRequested()),
-          lazy: false,
-        ),
-        BlocProvider(create: (_) => SitesBloc()..add(LoadSites()), lazy: true),
-        BlocProvider(create: (_) => CreateSiteBloc(repository: SiteRepository()))
-      ],
-      child: const MyApp(),
+    MultiRepositoryProvider(
+      providers: [RepositoryProvider(create: (_) => SiteRepository())],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => AuthBloc()..add(AuthCheckRequested()),
+            lazy: false,
+          ),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }

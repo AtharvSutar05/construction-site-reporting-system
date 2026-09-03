@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { dailyReportService } from "./daily_report.service.js";
+import type { GetSiteReportsQueryInput } from "../../shared/types/queries.js";
 
 class DailyReportController {
 
@@ -34,7 +35,7 @@ class DailyReportController {
         next: NextFunction
     ) => {
         try {
-            const  siteId  = req.params.siteId as string;
+            const siteId = req.params.siteId as string;
             const { companyId } = req.membership!;
 
             const data = await dailyReportService.getTodayReports(
@@ -58,7 +59,7 @@ class DailyReportController {
         next: NextFunction
     ) => {
         try {
-            const {memberId, companyId } = req.membership!;
+            const { memberId, companyId } = req.membership!;
             const siteId = req.params.siteId as string;
 
             const data = await dailyReportService.getTodayOwnReport(
@@ -111,7 +112,7 @@ class DailyReportController {
         next: NextFunction
     ) => {
         try {
-            const {memberId, companyId } = req.membership!;
+            const { memberId, companyId } = req.membership!;
             const reportId = req.params.reportId as string;
 
             const data = await dailyReportService.submitDailyReport(
@@ -126,6 +127,27 @@ class DailyReportController {
                     message: "Daily Report submitted successfully",
                     data
                 });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getSiteReports = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const companyId = req.membership!.companyId;
+            const siteId = req.params.siteId as string;
+            const query = req.validatedQuery as GetSiteReportsQueryInput;
+
+            const data = await dailyReportService.getSiteReports(siteId, companyId, query);
+
+            return res.json({
+                success: true,
+                data
+            });
         } catch (error) {
             next(error);
         }

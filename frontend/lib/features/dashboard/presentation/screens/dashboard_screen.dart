@@ -25,7 +25,7 @@ class DashboardScreen extends StatelessWidget {
                       return Text(
                         "Welcome ${state.user.name}!",
                         style: AppTypography.heading3.copyWith(
-                          color: AppColors.primary
+                          color: AppColors.primary,
                         ),
                       );
                     }
@@ -36,8 +36,8 @@ class DashboardScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 16,
                   backgroundColor: Colors.black,
-                  child: Icon(Icons.person_rounded, color: Colors.white,),
-                )
+                  child: Icon(Icons.person_rounded, color: Colors.white),
+                ),
               ],
             ),
           ],

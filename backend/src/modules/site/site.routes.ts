@@ -7,6 +7,8 @@ import { siteController } from "./site.controller.js";
 import { validateUUID } from "../../middleware/validateUUID.middleware.js";
 import { taskController } from "../task/task.controller.js";
 import { dailyReportController } from "../daily_report/daily_report.controller.js";
+import { validateQuerySchema } from "../../middleware/validate_query.middleware.js";
+import { getSiteReportsQuerySchema } from "../../shared/types/queries.js";
 
 export const siteRouter = Router();
 
@@ -92,4 +94,37 @@ siteRouter.get(
         UserRole.ENGINEER
     ),
     dailyReportController.getTodayOwnReport
+);
+
+siteRouter.get(
+    "/:siteId/qstat",
+    validateUUID("siteId"),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.ENGINEER
+    ),
+    siteController.getSiteQuickStats
+);
+
+siteRouter.post(
+    '/:siteId/task',
+    validateUUID("siteId"),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER
+    ),
+    taskController.createTask
+);
+
+siteRouter.get(
+    '/:siteId/daily-reports',
+    validateUUID('siteId'),
+    authorizeCompanyRole(
+        UserRole.ADMIN,
+        UserRole.MANAGER,
+        UserRole.ENGINEER
+    ),
+    validateQuerySchema(getSiteReportsQuerySchema),
+    dailyReportController.getSiteReports,
 )

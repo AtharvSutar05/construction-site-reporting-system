@@ -4,8 +4,9 @@ import { dailyReports } from "../../database/schema/daily_report.schema.js";
 import { sites } from "../../database/schema/sites.schema.js";
 import { users } from "../../database/schema/users.schema.js";
 import { ReportStatus } from "../../shared/enums/report_status.enum.js";
+import type { GetSiteReportsQueryInput } from "../../shared/types/queries.js";
 import type { CreateDailyReportInput, UpdateDailyReportInput } from "./daily_report.validation.js";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, count, gte, lte, desc } from "drizzle-orm";
 
 class DailyReportRepository {
     async createDailyReport(
@@ -219,6 +220,106 @@ class DailyReportRepository {
             .returning();
 
         return updatedReport;
+    }
+
+    async countReportsBySiteId(
+        siteId: string
+    ): Promise<number> {
+        const result = await db
+            .select({
+                count: count(dailyReports.id),
+            })
+            .from(dailyReports)
+            .where(
+                and(
+                    eq(dailyReports.siteId, siteId),
+                    ne(dailyReports.status, ReportStatus.DRAFT),
+                )
+            );
+        return result[0]?.count ?? 0;
+    }
+
+    async getSiteReports(
+        siteId: string,
+        companyId: string,
+        query: GetSiteReportsQueryInput,
+    ) {
+        
+        const {
+            status,
+            fromDate,
+            toDate,
+            page = 1,
+            limit = 20,
+        } = query;
+
+    
+
+        const conditions = [
+            eq(dailyReports.siteId, siteId),
+            eq(sites.companyId, companyId),
+            ne(dailyReports.status, ReportStatus.DRAFT),
+        ];
+
+        if (status) {
+            conditions.push(eq(dailyReports.status, status));
+        }
+
+        if (fromDate) {
+            conditions.push(
+                gte(dailyReports.reportDate, fromDate)
+            );
+        }
+
+        if (toDate) {
+            conditions.push(
+                lte(dailyReports.reportDate, toDate)
+            );
+        }
+
+        const offset = (page - 1) * limit;
+
+        const result = await db
+            .select({
+                id: dailyReports.id,
+                creatorName: users.name,
+                reportDate: dailyReports.reportDate,
+                status: dailyReports.status,
+                submittedAt: dailyReports.submittedAt
+            })
+            .from(dailyReports)
+            .innerJoin(
+                companyMembers,
+                eq(dailyReports.createdBy, companyMembers.id)
+            )
+            .innerJoin(
+                users,
+                eq(companyMembers.userId, users.id)
+            )
+            .innerJoin(
+                sites,
+                eq(dailyReports.siteId, sites.id)
+            )
+            .where(and(...conditions))
+            .orderBy(
+                desc(dailyReports.reportDate),
+                desc(dailyReports.createdAt),
+            )
+            .limit(limit + 1)
+            .offset(offset);
+
+        const hasNextPage = result.length > limit;
+
+        const reports = result.slice(0, limit);
+
+        return {
+            reports,
+            pagination: {
+                page,
+                limit,
+                hasNextPage
+            }
+        };
     }
 }
 

@@ -23,11 +23,12 @@ class TaskService {
 
     async createTask(
         memberId: string,
+        siteId: string,
         companyId: string,
         data: CreateTaskInput
     ) {
         const existingSite = await siteRepository.findSiteId(
-            data.siteId,
+            siteId,
             companyId
         );
         
@@ -36,6 +37,7 @@ class TaskService {
         }
 
         const result = await taskRepository.createTask(
+            siteId,
             data, 
             memberId
         );

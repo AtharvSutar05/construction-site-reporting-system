@@ -5,8 +5,6 @@ import { TaskStatus } from "../../shared/enums/task_status.enum.js";
 
 export const createTaskSchema = z
     .object({
-        siteId: z.uuid("Invalid site id."),
-
         title: z
             .string()
             .trim()

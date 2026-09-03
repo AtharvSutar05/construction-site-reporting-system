@@ -4,6 +4,10 @@ import { db } from "../../config/db.js";
 import { and, eq } from "drizzle-orm";
 import { ConflictError } from "../../shared/errors/conflict.error.js";
 import { NotFoundError } from "../../shared/errors/not_found.error.js";
+import { siteRepository } from "./site.repository.js";
+import { dailyReportRepository } from "../daily_report/daily_report.repository.js";
+import { taskRepository } from "../task/task.repository.js";
+import { siteAssignmentRepository } from "../site_assignment/site_assignment.repository.js";
 
 class SiteService {
 
@@ -25,7 +29,7 @@ class SiteService {
                 )
             );
 
-        if(existingSite && existingSite.id !== excludeSiteId) {
+        if (existingSite && existingSite.id !== excludeSiteId) {
             throw new ConflictError("Site code already exists");
         }
     }
@@ -68,7 +72,7 @@ class SiteService {
                 latitude: sites.latitude,
                 longitude: sites.longitude,
                 status: sites.status,
-                createdBy: users.name, 
+                createdBy: users.name,
                 createdAt: sites.createdAt,
                 updatedAt: sites.updatedAt,
             })
@@ -83,7 +87,7 @@ class SiteService {
                     eq(sites.id, siteId)
                 )
             );
-        if(!companySite) {
+        if (!companySite) {
             throw new NotFoundError("Site not found");
         }
         return companySite;
@@ -138,7 +142,7 @@ class SiteService {
             )
             .returning();
 
-        if(!updatedSite) {
+        if (!updatedSite) {
             throw new NotFoundError("Site not found");
         }
         return updatedSite;
@@ -157,9 +161,34 @@ class SiteService {
                 )
             )
             .returning();
-            if(!deletedSite) {
-                throw new NotFoundError("Site not found");
-            }
+        if (!deletedSite) {
+            throw new NotFoundError("Site not found");
+        }
+    }
+
+    async getQuickStatsBySiteId(
+        siteId: string,
+        companyId: string
+    ) {
+        const existingSite = await siteRepository.findSiteId(siteId, companyId);
+        if (!existingSite) {
+            throw new NotFoundError("Site not found");
+        }
+        const [
+            totalReports,
+            totalTasks,
+            totalMembers,
+        ] = await Promise.all([
+            dailyReportRepository.countReportsBySiteId(siteId),
+            taskRepository.countTasksBySiteId(siteId),
+            siteAssignmentRepository.countMembersBySiteId(siteId),
+        ]);
+
+        return {
+            totalReports,
+            totalTasks,
+            totalMembers,
+        };
     }
 }
 

@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, count } from "drizzle-orm";
 import { db } from "../../config/db.js";
 import { siteAssignments, sites } from "../../database/schema/index.js";
 
@@ -23,6 +23,21 @@ class SiteAssignmentRepository {
                 )
             )
         return existingSiteAssignment;
+    }
+
+    async countMembersBySiteId(
+        siteId: string
+    ): Promise<number> {
+        const result = await db
+            .select({
+                count: count()
+            })
+            .from(siteAssignments)
+            .where(
+                eq(siteAssignments.siteId, siteId)
+            );
+
+        return result[0]?.count ?? 0;
     }
 }
 

@@ -1,3 +1,4 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/router/go_router_refresh_stream.dart';
 import 'package:frontend/core/router/route_names.dart';
 import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
@@ -6,8 +7,15 @@ import 'package:frontend/features/auth/presentation/screens/login_screen.dart';
 import 'package:frontend/features/auth/presentation/screens/register_screen.dart';
 import 'package:frontend/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:frontend/features/reports/presentation/screens/reports_screen.dart';
+import 'package:frontend/features/sites/data/repositories/site_repository.dart';
+import 'package:frontend/features/sites/presentation/bloc/create_site/create_site_bloc.dart';
+import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detail_bloc.dart';
+import 'package:frontend/features/sites/presentation/bloc/site_detail/site_detail_event.dart';
+import 'package:frontend/features/sites/presentation/bloc/sites/sites_bloc.dart';
+import 'package:frontend/features/sites/presentation/bloc/sites/sites_event.dart';
 import 'package:frontend/features/sites/presentation/screens/create_site_screen.dart';
 import 'package:frontend/features/sites/presentation/screens/site_detail_screen.dart';
+import 'package:frontend/features/sites/presentation/screens/site_reports_screen.dart';
 import 'package:frontend/features/sites/presentation/screens/sites_screen.dart';
 import 'package:frontend/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:frontend/shared/main_screen.dart';
@@ -86,18 +94,46 @@ class AppRouter {
             GoRoute(
               path: RoutePaths.sites,
               name: RouteNames.sites,
-              builder: (context, state) => const SitesScreen(),
+              builder: (context, state) => BlocProvider(
+                create: (context) =>
+                    SitesBloc(siteRepository: context.read<SiteRepository>())
+                      ..add(LoadSites()),
+                child: const SitesScreen(),
+              ),
               routes: [
                 GoRoute(
-                    path: RoutePaths.createSite,
-                    name: RouteNames.createSite,
-                    builder: (context, state) => const CreateSiteScreen()
+                  path: RoutePaths.createSite,
+                  name: RouteNames.createSite,
+                  builder: (context, state) => BlocProvider(
+                    create: (context) => CreateSiteBloc(
+                      repository: context.read<SiteRepository>(),
+                    ),
+                    child: const CreateSiteScreen(),
+                  ),
                 ),
                 GoRoute(
                   path: RoutePaths.siteDetail,
                   name: RouteNames.siteDetail,
-                  builder: (context, state) =>
-                      SiteDetailScreen(siteId: state.pathParameters['siteId']!),
+                  builder: (context, state) => BlocProvider(
+                    create: (context) =>
+                        SiteDetailBloc(
+                          siteRepository: context.read<SiteRepository>(),
+                        )..add(
+                          LoadSiteDetail(
+                            siteId: state.pathParameters['siteId']!,
+                          ),
+                        ),
+                    child: SiteDetailScreen(
+                      siteId: state.pathParameters['siteId']!,
+                    ),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: RoutePaths.siteReports,
+                      name: RouteNames.siteReports,
+                      builder: (context, state) => const SiteReportsScreen()
+                    ),
+                  ]
                 ),
               ],
             ),

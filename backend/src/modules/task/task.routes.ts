@@ -8,16 +8,6 @@ import { validateUUID } from "../../middleware/validateUUID.middleware.js";
 
 export const taskRouter = Router();
 
-taskRouter.post(
-    "/",
-    authorizeCompanyRole(
-        UserRole.ADMIN,
-        UserRole.MANAGER
-    ),
-    validateSchema(createTaskSchema),
-    taskController.createTask
-);
-
 taskRouter.get(
     "/:taskId",
     validateUUID("taskId"),

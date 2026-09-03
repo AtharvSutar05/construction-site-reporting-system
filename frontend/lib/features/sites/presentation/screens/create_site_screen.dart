@@ -83,7 +83,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
       address: _addressController.text.trim(),
       city: _cityController.text.trim(),
       state: _stateController.text.trim(),
-      country: "United States",
+      country: "India",
       latitude: _latitudeController.text.trim().isEmpty
           ? null
           : double.tryParse(_latitudeController.text.trim()),
@@ -202,6 +202,7 @@ class _CreateSiteScreenState extends State<CreateSiteScreen> {
         ),
         const SizedBox(height: AppSpacing.m),
         _requiredLabel("Site Code"),
+        const SizedBox(height: AppSpacing.xs),
         TextFormField(
           controller: _codeController,
           focusNode: _codeFocusNode,

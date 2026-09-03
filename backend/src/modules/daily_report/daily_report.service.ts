@@ -1,6 +1,7 @@
 import { ReportStatus } from "../../shared/enums/report_status.enum.js";
 import { SuggestedTaskStatus } from "../../shared/enums/suggested_task_status.enum.js";
 import { ConflictError, NotFoundError } from "../../shared/errors/index.js";
+import type { GetSiteReportsQueryInput } from "../../shared/types/queries.js";
 import { siteRepository } from "../site/site.repository.js";
 import { siteAssignmentRepository } from "../site_assignment/site_assignment.repository.js";
 import { taskProgressRepository } from "../task_progress/task_progress.repository.js";
@@ -132,10 +133,6 @@ class DailyReportService {
             companyId
         );
 
-        if (dailyReport.length === 0) {
-            throw new NotFoundError("Today's report not found");
-        }
-
         return dailyReport;
     }
 
@@ -240,6 +237,23 @@ class DailyReportService {
         }
 
         return await dailyReportRepository.submitDailyReport(reportId);
+    }
+
+    async getSiteReports(
+        siteId: string,
+        companyId: string,
+        query: GetSiteReportsQueryInput,
+    ) {
+        const existingSite = await siteRepository.findSiteId(
+            siteId,
+            companyId
+        );
+
+        if (!existingSite) {
+            throw new NotFoundError("Site not found");
+        }
+
+        return await dailyReportRepository.getSiteReports(siteId, companyId, query);
     }
 }
 

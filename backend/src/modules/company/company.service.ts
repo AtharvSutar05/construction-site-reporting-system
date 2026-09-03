@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../config/db.js";
-import { companies, type Company, companyMembers } from "../../database/schema/index.js";
+import { companies, type Company, companyMembers, users } from "../../database/schema/index.js";
 import type { CreateCompanyInput, UpdateCompanyInput } from "./company.validation.js";
 import { UserRole } from "../../shared/enums/role.enum.js";
 import { ConflictError, NotFoundError } from "../../shared/errors/index.js";
@@ -11,8 +11,19 @@ class CompanyService {
         companyId: string
     ) {
         const [company] = await db
-            .select()
+            .select({
+                id: companies.id,
+                name: companies.name,
+                description: companies.description,
+                createdBy: users.name,
+                createdAt: companies.createdAt,
+                updatedAt: companies.updatedAt,
+            })
             .from(companies)
+            .innerJoin(
+                users,
+                eq(companies.createdBy, users.id)
+            )
             .where(eq(companies.id, companyId));
 
         if (!company) {

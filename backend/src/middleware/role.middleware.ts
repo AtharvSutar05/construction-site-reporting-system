@@ -19,7 +19,8 @@ export const authorizeCompanyRole = (
         .select({
           id: companyMembers.id,
           companyId: companyMembers.companyId,
-          role: companyMembers.role
+          role: companyMembers.role,
+          joinedAt: companyMembers.joinedAt
         })
         .from(companyMembers)
         .where(eq(companyMembers.userId, userId!));
@@ -39,6 +40,7 @@ export const authorizeCompanyRole = (
         memberId: membership.id,
         companyId: membership.companyId,
         role: membership.role,
+        joinedAt: membership.joinedAt
       };
       next();
     } catch (error) {

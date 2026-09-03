@@ -109,6 +109,29 @@ class SiteController {
             next(error);
         }
     }
+
+    getSiteQuickStats = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const companyId = req!.membership!.companyId;
+            const siteId = req.params.siteId! as string;
+
+            const data = await siteService.getQuickStatsBySiteId(
+                siteId,
+                companyId
+            );
+
+            return res.status(200).json({
+                success: true,
+                data
+            });
+        } catch (error) {
+           next(error); 
+        }
+    }
 }
 
 export const siteController = new SiteController();
